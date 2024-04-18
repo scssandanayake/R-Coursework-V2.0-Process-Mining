@@ -16,6 +16,8 @@ class(data$Case_ID)  #check the class of a particular variable
 unique(data$Case_ID)  #what can we found inside a particular variable
 levels(data$Case_ID)  #check the levels of any variable
 
+############################################################################
+
 #installing the required packages for process mining
 install.packages("bupaR")
 install.packages("processmapR")
