@@ -79,6 +79,7 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 #view full data set
 #View(log1)
 
+###### for the full log ############
 #draw the full process map (Complete Details)
 processmapR::process_map(event_log)
 
@@ -89,6 +90,23 @@ process_map(event_log, performance(median))
 #draw the full process map (Complete Details)
 #Mean Value
 process_map(event_log, performance(mean))
+
+##### Process Visualizations ######
+processmapR::precedence_matrix %>% plot   #there is a problem
+processmapR::trace_explorer(event_log)
+processmapR::idotted_chart(event_log)
+processmapR::resource_map(event_log)
+processmapR::resource_matrix %>% plot   #there is a problem
+
+##### process dashboards #######
+processmonitR::activity_dashboard(event_log)
+processmonitR::resource_dashboard(event_log)
+processmonitR::rework_dashboard(event_log)
+processmonitR::performance_dashboard(event_log)
+
+
+########## for the filtered log ###################
+processmapR::process_map(filtered_log)
 
 #draw the normal process map (Main Details)
 event_log %>%
