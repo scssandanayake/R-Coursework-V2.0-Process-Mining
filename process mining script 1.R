@@ -1,9 +1,9 @@
 #Install the required libraries for process mining
-#install.packages("bupaR")
-#install.packages("eventdataR")
-#install.packages("edeaR")
-#install.packages("processmapR")
-#install.packages("processmonitR")
+install.packages("bupaR")
+install.packages("eventdataR")
+install.packages("edeaR")
+install.packages("processmapR")
+install.packages("processmonitR")
 
 #load the required library
 library(bupaR)
@@ -118,9 +118,57 @@ event_log %>%
   process_map(performance(median, "mins"),
               render = T)
 
+################################################################################
+
+#Generate a matrix with activity follower frequency overview
+process_matrix <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = .80) %>%    
+  process_matrix() %>% 
+  plot(render=T)
+
+#Generate a matrix with activity follower frequency overview
+process_matrix <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = .80) %>%    
+  process_matrix()
+
+# Filter activity frequency and trace frequency
+filtered_log <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80) %>%
+  process_matrix <- process_map(filtered_log) %>%
+  plot(process_matrix, render = TRUE)
+
 #Generate a matrix with activity follower frequency overview
 process_matrix <- event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = .80) %>%    
   process_matrix() %>% 
   plot()
+
+#changes need to be done
+
+###############################################################################
+
+# Assuming event_log is already loaded and contains your event log data
+
+# Filter activity frequency and trace frequency
+filtered_log <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80)
+  process_matrix <- process_matrix(filtered_log) 
+  plot(process_matrix, render = TRUE)
+
+#Generate variant overview
+trace_explorer <- filtered_log %>%
+  trace_explorer(coverage = 0.5)
+  plot(trace_explorer, render = TRUE)
+
+#Show throughput time; In hours by Application Type
+event_log %>%
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`(case)_ApplicationType`) %>% 
+  throughput_time('log', units = 'hours')
+
+
