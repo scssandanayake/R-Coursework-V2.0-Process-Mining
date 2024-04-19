@@ -197,3 +197,15 @@ event_log %>%
   throughput_time('log', units = 'hours')
 #there is an error in the above code
 
+
+######### conditional process analysis #########
+event_log %>%
+  group_by(Case_ID, Enrollment_Status) %>%
+  throughput_time("log") %>%
+  plot(render= T)
+
+event_log %>%
+  group_by(Case_ID, Enrollment_Status) %>%
+  throughput_time('log', units = 'hours') %>%
+  plot(render= T)
+
