@@ -1,9 +1,9 @@
 #Install the required libraries for process mining
-install.packages("bupaR")
-install.packages("eventdataR")
-install.packages("edeaR")
-install.packages("processmapR")
-install.packages("processmonitR")
+#install.packages("bupaR")
+#install.packages("eventdataR")
+#install.packages("edeaR")
+#install.packages("processmapR")
+#install.packages("processmonitR")
 
 #load the required library
 library(bupaR)
@@ -87,7 +87,7 @@ processmapR::process_map(event_log)
 process_map(event_log, performance(median))
 
 #draw the full process map (Complete Details)
-#Median Value
+#Mean Value
 process_map(event_log, performance(mean))
 
 #draw the normal process map (Main Details)
@@ -147,7 +147,7 @@ process_matrix <- event_log %>%
   process_matrix() %>% 
   plot()
 
-#changes need to be done
+#changes need to be done inside this section
 
 ###############################################################################
 
@@ -168,7 +168,14 @@ trace_explorer <- filtered_log %>%
 #Show throughput time; In hours by Application Type
 event_log %>%
   filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
-  group_by(`(case)_ApplicationType`) %>% 
+  group_by(`(Case_ID)Enrollment_Status`) %>% 
   throughput_time('log', units = 'hours')
+#there is an error in the above code
 
+#Show throughput time; In hours by Loan Goal
+event_log %>%
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`(Closed_At)Department`) %>% 
+  throughput_time('log', units = 'hours')
+#there is an error in the above code
 
