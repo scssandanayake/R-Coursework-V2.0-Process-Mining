@@ -226,7 +226,7 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 
 
 ######## SECTION 4 ########
-#### drawing process maps #####
+#### drawing process maps part 1#####
 
 ###### process maps for the full event log ############
 
@@ -256,6 +256,7 @@ processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
 
 
+#### drawing process maps part 2 #####
 ########## preoces maps for the filtered log ###################
 
 
@@ -297,29 +298,35 @@ trace_explorer <- event_log %>%
   trace_explorer(coverage = 0.5)
   plot(trace_explorer, render = TRUE)
 
-#Show throughput time; In hours by Application Type
-event_log %>%
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
-  group_by(`(Case_ID)Enrollment_Status`) %>% 
-  throughput_time('log', units = 'hours')
-#there is an error in the above code  ####ERROR
-
-#Show throughput time; In hours by Loan Goal
-event_log %>%
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
-  group_by(`(Closed_At)Department`) %>% 
-  throughput_time('log', units = 'hours')
-#there is an error in the above code       ####ERROR
-
 
 ######### conditional process analysis #########
+
+#Show throughput time; In hours by Application Type
 event_log %>%
-  group_by(Case_ID, Enrollment_Status) %>%
-  throughput_time("log") %>%
-  plot(render= T)
+  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Active_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+
+#Show throughput time; In hours by Notification_Status
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Notification_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
 
 event_log %>%
-  group_by(Case_ID, Enrollment_Status) %>%
-  throughput_time('log', units = 'hours') %>%
-  plot(render= T)
+  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Notification_Status`,`Active_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
+  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Notification_Status`,`Active_Status`) %>% 
+  throughput_time('log', units = 'hours')
 
