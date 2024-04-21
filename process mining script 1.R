@@ -39,8 +39,17 @@ is.na(log)
 sum(is.na(log))
 colSums(is.na(log))
 
+
+
+
 ###### SECTION 2 #######
 ###### DATA CLEANING PART ########
+
+##this part removed
+
+#log[log == '?'] <- NA
+#log <- na.omit(log)       ### when omit NA values rows count drops to 53K ##bad step
+
 
 acb_emp_ids <- unique(log$Application_Created_By)
 # For loop to slice the last word of the string
@@ -146,41 +155,48 @@ case_ids
 
 # Take the `log` data-frame, remove the log events with same `Case_ID` and `Enrollment_Status`, keep only the first log of those dUplicates. 
 # Don't reassign to the same data-frame, create a new one instead. 
-
 distinct_df <- distinct(log, Case_ID, Enrollment_Status, .keep_all = TRUE)
-write.csv(log, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned.csv", row.names = FALSE)
+
+#save cleaned dataset
+#write.csv(distinct_df, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
+
+######## loading the newly cleaned data set
+
+#log1 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv")
+#log1
+#View(log1)
 
 
-#log[log == '?'] <- NA
-#log <- na.omit(log)       ### when omit NA values rows count drops to 53K ##bad step
+
+
 
 ####### SECTION 3 #######
 ###### DATA PREPROCESSING TO CREATE AN EVENT LOG ######
 
 # Convert time-stamps into POSIXct format
-log$Opened_At<-as.POSIXct(log$Opened_At,format="%d/%m/%Y %H:%M")
-log$Closed_At <- as.POSIXct(log$Closed_At, format="%d/%m/%Y %H:%M")
-log$Resolved_At <- as.POSIXct(log$Resolved_At, format="%d/%m/%Y %H:%M")
-log$Application_Created_At <- as.POSIXct(log$Application_Created_At, format="%d/%m/%Y %H:%M")
-log$Last_Updated_At <- as.POSIXct(log$Last_Updated_At, format="%d/%m/%Y %H:%M")
+distinct_df$Opened_At<-as.POSIXct(distinct_df$Opened_At,format="%d/%m/%Y %H:%M")
+distinct_df$Closed_At <- as.POSIXct(distinct_df$Closed_At, format="%d/%m/%Y %H:%M")
+distinct_df$Resolved_At <- as.POSIXct(distinct_df$Resolved_At, format="%d/%m/%Y %H:%M")
+distinct_df$Application_Created_At <- as.POSIXct(distinct_df$Application_Created_At, format="%d/%m/%Y %H:%M")
+distinct_df$Last_Updated_At <- as.POSIXct(distinct_df$Last_Updated_At, format="%d/%m/%Y %H:%M")
 
 # Creating event log: arrange, group, mutate, then un-group
-log <- log%>%
+distinct_df <- distinct_df%>%
   arrange(Case_ID,Last_Updated_At)%>%
   group_by(Case_ID,Last_Updated_At)%>%
   mutate(activity_instance_id = paste(Case_ID,Enrollment_Status, row_number(), sep ="_"))%>%
   ungroup()
 
 #get an summery of the data set
-log
+distinct_df
 
 # Adding a column for resource ID (filled with NA for compatibility)
-log$resource_id <- "NA"
+distinct_df$resource_id <- "NA"
 
-#View(log)
+#View(distinct_df)
 
 # Create the event log object
-event_log <- eventlog(log,
+event_log <- eventlog(distinct_df,
                       case_id = "Case_ID",
                       activity_id = "Enrollment_Status",
                       timestamp = "Last_Updated_At",
@@ -198,32 +214,19 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 #write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv", row.names = FALSE)
 
 #loading the new cleaned data set
-#log1 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv")
+#log2 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv")
 
 #get an summery of the data set
-#log1
+#log2
 
 #view full data set
-#View(log1)
+#View(log2)
 
 
-cc_ids <- unique(log$Closed_Code)
-b <- 0
 
-for (i in 1:length(cc_ids)) {
-  b <- b+1
-  filtered_logs <- event_log %>%
-    filter(Closed_Code == cc_ids[i]) %>%
-    filter_activity_frequency(percentage = 1.0) %>% 
-    filter_trace_frequency(percentage = 0.80)
-  if (nrow(filtered_logs) > 0) {  # Check if there are filtered logs
-    print(nrow(filtered_logs))
-    filtered_logs %>% 
-      process_map(performance(mean, "mins"), render = F) %>%
-      export_graph(file_name=paste('./process_map_', cc_ids[i], '.png', file_type="PNG"))
-  }
-}
 
+######## SECTION 4 ########
+#### drawing process maps #####
 
 ###### process maps for the full event log ############
 
@@ -239,11 +242,12 @@ process_map(event_log, performance(median))
 process_map(event_log, performance(mean))
 
 ##### Process Visualizations ######
-processmapR::precedence_matrix %>% plot   #there is a problem
+processmapR::precedence_matrix(event_log) #there is a problem
+processmapR::process_matrix(event_log)
 processmapR::trace_explorer(event_log)
 processmapR::idotted_chart(event_log)
 processmapR::resource_map(event_log)
-processmapR::resource_matrix %>% plot   #there is a problem
+processmapR::resource_matrix(event_log)  #there is a problem
 
 ##### process dashboards #######
 processmonitR::activity_dashboard(event_log)
@@ -252,9 +256,8 @@ processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
 
 
-########## preocess maps for the filtered log ###################
+########## preoces maps for the filtered log ###################
 
-processmapR::process_map(filtered_log)
 
 #draw the normal process map (Main Details)
 event_log %>%
@@ -282,50 +285,15 @@ event_log %>%
   process_map(performance(median, "mins"),
               render = T)
 
-################################################################################
-
-#Generate a matrix with activity follower frequency overview
-process_matrix <- event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_matrix() %>% 
-  plot(render=T)
-
-#Generate a matrix with activity follower frequency overview
-process_matrix <- event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_matrix()
-
 # Filter activity frequency and trace frequency
-filtered_log <- event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80) %>%
-  process_matrix <- process_map(filtered_log) %>%
-  plot(process_matrix, render = TRUE)
-
-#Generate a matrix with activity follower frequency overview
-process_matrix <- event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_matrix() %>% 
-  plot()
-
-#changes need to be done inside this section
-
-###############################################################################
-
-# Assuming event_log is already loaded and contains your event log data
-
-# Filter activity frequency and trace frequency
-filtered_log <- event_log %>%
+event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = 0.80)
-  process_matrix <- process_matrix(filtered_log) 
+  process_matrix <- process_matrix(event_log) 
   plot(process_matrix, render = TRUE)
 
 #Generate variant overview
-trace_explorer <- filtered_log %>%
+trace_explorer <- event_log %>%
   trace_explorer(coverage = 0.5)
   plot(trace_explorer, render = TRUE)
 
