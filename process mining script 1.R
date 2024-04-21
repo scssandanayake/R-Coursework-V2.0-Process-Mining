@@ -232,7 +232,7 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 ###### process maps for the full event log ############
 
 #draw the full process map (Complete Details)
-processmapR::process_map(event_log)
+process_map(event_log)
 
 #draw the full process map (Complete Details)
 #Median Value
@@ -255,6 +255,7 @@ data1 <- process_matrix(event_log)
 data1 %>% plot()
 plot(process_matrix(event_log))
 
+
 #other maps
 processmapR::trace_explorer(event_log)
 processmapR::idotted_chart(event_log)
@@ -275,48 +276,34 @@ processmonitR::performance_dashboard(event_log)
 #### DRAWING PROCESS MAPS 2 #####
 ########## process maps for the filtered log_data ###################
 
-
-#draw the normal process map (Main Details)
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_map(render = T)
-
-#process map details
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_map(render = F)
-
-#Generate process map with performance measures ( Mean Value )
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_map(performance(mean, "mins"),
-              render = T)
-
-#Generate process map with performance measures ( Median Value )
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = .80) %>%    
-  process_map(performance(median, "mins"),
-              render = T)
-
-# Filter activity frequency and trace frequency
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80)
-  process_matrix <- process_matrix(event_log)
-  plot(process_matrix, render = TRUE)
-
-# Filter event log data
+##filtering the data for the next maps
 filtered_data <- event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = 0.80)
-# Generate process matrix
+##filter data details
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80)
+
+#draw the normal process map (Main Details)
+filtered_data %>% process_map(render = T)
+
+#process map details
+filtered_data %>% process_map(render = F)
+
+#Generate process map with performance measures ( Mean Value )
+filtered_data %>%process_map(performance(mean, "mins"),render = T)
+
+#Generate process map with performance measures ( Median Value )
+filtered_data %>%process_map(performance(median, "mins"),render = T)
+
+# Generate process matrix for original data
+process_matrix <- process_matrix(event_log)
+plot(process_matrix, render = TRUE)
+
+# Generate process matrix for filterd data
 process_matrix <- process_matrix(filtered_data)
-# Plot process matrix with a title
-plot(process_matrix, render = TRUE, main = "Process Matrix Plot")
+plot(process_matrix, render = TRUE)
 
 #Generate variant overview
 trace_explorer <- event_log %>%
@@ -326,32 +313,39 @@ trace_explorer <- event_log %>%
 
 ######### conditional process analysis #########
 
-#Show throughput time; In hours by Application Type
+#Show throughput time; In hours by Active Type
+filtered_data %>%
+  group_by(`Active_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+  
 event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
   group_by(`Active_Status`) %>% 
   throughput_time('log', units = 'hours') %>% 
   plot(render = T)
 
 #Show throughput time; In hours by Notification_Status
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+filtered_data %>%
   group_by(`Notification_Status`) %>% 
   throughput_time('log', units = 'hours') %>% 
   plot(render = T)
 
 event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Notification_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+
+#Show throughput time; In hours by Notification_Status and active status
+filtered_data %>%
   group_by(`Notification_Status`,`Active_Status`) %>% 
   throughput_time('log', units = 'hours') %>% 
   plot(render = T)
 
 event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% # show only most frequent activities
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
+  group_by(`Notification_Status`,`Active_Status`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+
+filtered_data %>%
   group_by(`Notification_Status`,`Active_Status`) %>% 
   throughput_time('log', units = 'hours')
-
