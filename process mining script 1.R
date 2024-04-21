@@ -12,6 +12,7 @@ library(bupaR)
 library(dplyr)
 library(eventdataR)
 library(processmapR)
+library(processmonitR)
 library(edeaR)
 library(tidyverse)
 
@@ -226,7 +227,7 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 
 
 ######## SECTION 4 ########
-#### drawing process maps part 1#####
+#### DRAWING PROCESS MAPS 1#####
 
 ###### process maps for the full event log ############
 
@@ -241,23 +242,38 @@ process_map(event_log, performance(median))
 #Mean Value
 process_map(event_log, performance(mean))
 
-##### Process Visualizations ######
-processmapR::precedence_matrix(event_log) #there is a problem
+
+##### OTHER PROCESS VISUALIZATIONS ######
+# precedence_matrix = process_matrix
+processmapR::precedence_matrix(event_log)
+data <- precedence_matrix(event_log)
+data %>% plot()
+
+#process_matrix
 processmapR::process_matrix(event_log)
+data1 <- process_matrix(event_log)
+data1 %>% plot()
+plot(process_matrix(event_log))
+
+#other maps
 processmapR::trace_explorer(event_log)
 processmapR::idotted_chart(event_log)
 processmapR::resource_map(event_log)
-processmapR::resource_matrix(event_log)  #there is a problem
 
-##### process dashboards #######
+#resource_matrix
+processmapR::resource_matrix(event_log)
+data2 <- resource_matrix(event_log)
+data2 %>% plot()
+
+##### PROCESSS DASHBOARDS #######
 processmonitR::activity_dashboard(event_log)
 processmonitR::resource_dashboard(event_log)
 processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
 
 
-#### drawing process maps part 2 #####
-########## preoces maps for the filtered log ###################
+#### DRAWING PROCESS MAPS 2 #####
+########## process maps for the filtered log_data ###################
 
 
 #draw the normal process map (Main Details)
@@ -290,8 +306,17 @@ event_log %>%
 event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = 0.80)
-  process_matrix <- process_matrix(event_log) 
+  process_matrix <- process_matrix(event_log)
   plot(process_matrix, render = TRUE)
+
+# Filter event log data
+filtered_data <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80)
+# Generate process matrix
+process_matrix <- process_matrix(filtered_data)
+# Plot process matrix with a title
+plot(process_matrix, render = TRUE, main = "Process Matrix Plot")
 
 #Generate variant overview
 trace_explorer <- event_log %>%
