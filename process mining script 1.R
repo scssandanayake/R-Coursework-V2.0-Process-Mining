@@ -5,7 +5,7 @@
 #install.packages("processmapR")
 #install.packages("processmonitR")
 
-#load the required library
+#load the required library for process mining
 library(bupaR)
 library(dplyr)
 library(eventdataR)
@@ -20,24 +20,38 @@ log <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\Student_Enrollment_Event_
 log
 
 #view full data set
-View(log)
+#View(log)
+
+###### DETAILS ABOUT THE DATASET #######
+str(log) #get the structure of the data set & it's variables/features
+names(log) #get column names
+summary(log) #summery of the dataset
+head(log) #first 6 rows
+tail(log) #last 6 rows
+
+log[log == '?'] <- NA
 
 #checking NA / null values
 is.na(log)
 sum(is.na(log))
 colSums(is.na(log))
 
-log[log == '?'] <- NA
-log <- na.omit(log)
+###### DATA CLEANING PART#########
 
-# Convert timestamp into POSIXct format
+#log[log == '?'] <- NA
+#log <- na.omit(log)       #when omit NA values rows count drops to 53K ##bad step
+
+
+###### DATA PREPROCESSING TO CREATE AN EVENT LOG ######
+
+# Convert time-stamps into POSIXct format
 log$Opened_At<-as.POSIXct(log$Opened_At,format="%d/%m/%Y %H:%M")
 log$Closed_At <- as.POSIXct(log$Closed_At, format="%d/%m/%Y %H:%M")
 log$Resolved_At <- as.POSIXct(log$Resolved_At, format="%d/%m/%Y %H:%M")
 log$Application_Created_At <- as.POSIXct(log$Application_Created_At, format="%d/%m/%Y %H:%M")
 log$Last_Updated_At <- as.POSIXct(log$Last_Updated_At, format="%d/%m/%Y %H:%M")
 
-# Creating event log: arrange, group, mutate, then ungroup
+# Creating event log: arrange, group, mutate, then un-group
 log <- log%>%
   arrange(Case_ID,Last_Updated_At)%>%
   group_by(Case_ID,Last_Updated_At)%>%
@@ -50,7 +64,7 @@ log
 # Adding a column for resource ID (filled with NA for compatibility)
 log$resource_id <- "NA"
 
-View(log)
+#View(log)
 
 # Create the event log object
 event_log <- eventlog(log,
@@ -79,7 +93,27 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 #view full data set
 #View(log1)
 
-###### for the full log ############
+
+cc_ids <- unique(log$Closed_Code)
+b <- 0
+
+for (i in 1:length(cc_ids)) {
+  b <- b+1
+  filtered_logs <- event_log %>%
+    filter(Closed_Code == cc_ids[i]) %>%
+    filter_activity_frequency(percentage = 1.0) %>% 
+    filter_trace_frequency(percentage = 0.80)
+  if (nrow(filtered_logs) > 0) {  # Check if there are filtered logs
+    print(nrow(filtered_logs))
+    filtered_logs %>% 
+      process_map(performance(mean, "mins"), render = F) %>%
+      export_graph(file_name=paste('./process_map_', cc_ids[i], '.png', file_type="PNG"))
+  }
+}
+
+
+###### process maps for the full event log ############
+
 #draw the full process map (Complete Details)
 processmapR::process_map(event_log)
 
@@ -105,7 +139,8 @@ processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
 
 
-########## for the filtered log ###################
+########## preocess maps for the filtered log ###################
+
 processmapR::process_map(filtered_log)
 
 #draw the normal process map (Main Details)
@@ -120,16 +155,14 @@ event_log %>%
   filter_trace_frequency(percentage = .80) %>%    
   process_map(render = F)
 
-#Generate process map with performance measures
-#Mean Value
+#Generate process map with performance measures ( Mean Value )
 event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = .80) %>%    
   process_map(performance(mean, "mins"),
               render = T)
 
-#Generate process map with performance measures
-#Median Value
+#Generate process map with performance measures ( Median Value )
 event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = .80) %>%    
@@ -188,14 +221,14 @@ event_log %>%
   filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
   group_by(`(Case_ID)Enrollment_Status`) %>% 
   throughput_time('log', units = 'hours')
-#there is an error in the above code
+#there is an error in the above code  ####ERROR
 
 #Show throughput time; In hours by Loan Goal
 event_log %>%
   filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
   group_by(`(Closed_At)Department`) %>% 
   throughput_time('log', units = 'hours')
-#there is an error in the above code
+#there is an error in the above code       ####ERROR
 
 
 ######### conditional process analysis #########
