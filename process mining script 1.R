@@ -227,8 +227,8 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 
 
 ######## SECTION 4 ########
-#### DRAWING PROCESS MAPS 1#####
 
+#### DRAWING PROCESS MAPS 1#####
 ###### process maps for the full event log ############
 
 #draw the full process map (Complete Details)
@@ -243,6 +243,48 @@ process_map(event_log, performance(median))
 process_map(event_log, performance(mean))
 
 
+
+#### DRAWING PROCESS MAPS 2 #####
+########## process maps for the filtered log_data ###################
+
+##filtering the data for the next maps
+filtered_data <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80)
+##filter data details
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.80)
+
+#draw the filtered process map (Main Details)
+filtered_data %>% process_map(render = T)
+
+#process map details
+filtered_data %>% process_map(render = F)
+
+#Generate process map with performance measures ( Mean Value )
+filtered_data %>%process_map(performance(mean, "mins"),render = T)
+
+#Generate process map with performance measures ( Median Value )
+filtered_data %>%process_map(performance(median, "mins"),render = T)
+
+# Generate process matrix for original data
+process_matrix <- process_matrix(event_log)
+plot(process_matrix, render = TRUE)
+
+# Generate process matrix for filterd data
+process_matrix <- process_matrix(filtered_data)
+plot(process_matrix, render = TRUE)
+
+#Generate variant overview
+trace_explorer <- event_log %>%
+  trace_explorer(coverage = 0.5)
+  plot(trace_explorer, render = TRUE)
+
+
+  
+  
+######## SECTION 5 ########
 ##### OTHER PROCESS VISUALIZATIONS ######
 # precedence_matrix = process_matrix
 processmapR::precedence_matrix(event_log)
@@ -271,47 +313,11 @@ processmonitR::activity_dashboard(event_log)
 processmonitR::resource_dashboard(event_log)
 processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
+  
+  
 
-
-#### DRAWING PROCESS MAPS 2 #####
-########## process maps for the filtered log_data ###################
-
-##filtering the data for the next maps
-filtered_data <- event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80)
-##filter data details
-event_log %>%
-  filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80)
-
-#draw the normal process map (Main Details)
-filtered_data %>% process_map(render = T)
-
-#process map details
-filtered_data %>% process_map(render = F)
-
-#Generate process map with performance measures ( Mean Value )
-filtered_data %>%process_map(performance(mean, "mins"),render = T)
-
-#Generate process map with performance measures ( Median Value )
-filtered_data %>%process_map(performance(median, "mins"),render = T)
-
-# Generate process matrix for original data
-process_matrix <- process_matrix(event_log)
-plot(process_matrix, render = TRUE)
-
-# Generate process matrix for filterd data
-process_matrix <- process_matrix(filtered_data)
-plot(process_matrix, render = TRUE)
-
-#Generate variant overview
-trace_explorer <- event_log %>%
-  trace_explorer(coverage = 0.5)
-  plot(trace_explorer, render = TRUE)
-
-
-######### conditional process analysis #########
+######### SECTION 6 #########
+######## conditional process analysis #########
 
 #Show throughput time; In hours by Active Type
 filtered_data %>%
