@@ -232,7 +232,6 @@ bupaR::trace_list(event_log) %>% print(n=85)
 bupaR::mapping(event_log)
 
 edeaR::activity_frequency(event_log)
-edeaR::activity_frequency(event_log)
 edeaR::activity_presence(event_log)
 edeaR::end_activities(event_log)
 edeaR::idle_time(event_log)
@@ -304,6 +303,10 @@ plot(process_matrix, render = TRUE)
 
 #Generate variant overview
 trace_explorer <- event_log %>%
+  trace_explorer(coverage = 0.5)
+  plot(trace_explorer, render = TRUE)
+  
+trace_explorer <- filtered_data %>%
   trace_explorer(coverage = 0.5)
   plot(trace_explorer, render = TRUE)
 
@@ -387,3 +390,13 @@ filtered_data %>%
 
 glimpse(event_log)
 glimpse(filtered_data)
+
+event_log %>%
+  group_by(`Closed_At`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
+
+event_log %>%
+  group_by(`Last_Updated_At`) %>% 
+  throughput_time('log', units = 'hours') %>% 
+  plot(render = T)
