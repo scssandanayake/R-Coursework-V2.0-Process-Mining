@@ -223,7 +223,6 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 
 
 
-
 ### DEPTH ANALYSIS oOF  EVENT LOG ###
 ## details of EVENT_LOG ##
 bupaR::cases(event_log)
@@ -231,6 +230,27 @@ bupaR::activities(event_log)
 bupaR::n_traces(event_log)
 bupaR::trace_list(event_log) %>% print(n=85)
 bupaR::mapping(event_log)
+
+edeaR::activity_frequency(event_log)
+edeaR::activity_frequency(event_log)
+edeaR::activity_presence(event_log)
+edeaR::end_activities(event_log)
+edeaR::idle_time(event_log)
+edeaR::number_of_repetitions(event_log)
+edeaR::number_of_selfloops(event_log)
+edeaR::number_of_traces(event_log)
+edeaR::processing_time(event_log)
+edeaR::resource_frequency(event_log)
+edeaR::resource_involvement(event_log)
+edeaR::resource_specialisation(event_log)
+edeaR::size_of_repetitions(event_log)
+edeaR::size_of_selfloops(event_log)
+edeaR::start_activities(event_log)
+edeaR::throughput_time(event_log)
+edeaR::trace_coverage(event_log)
+edeaR::trace_length(event_log)
+
+
 
 ######## SECTION 4 ########
 
@@ -256,11 +276,11 @@ process_map(event_log, performance(mean))
 ##filtering the data for the next maps
 filtered_data <- event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80)
+  filter_trace_frequency(percentage = 0.95)
 ##filter data details
 event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
-  filter_trace_frequency(percentage = 0.80)
+  filter_trace_frequency(percentage = 0.95)
 
 #draw the filtered process map (Main Details)
 filtered_data %>% process_map(render = T)
