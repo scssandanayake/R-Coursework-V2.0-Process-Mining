@@ -9,12 +9,12 @@
 
 #load the required library for process mining
 library(bupaR)
-library(dplyr)
 library(eventdataR)
 library(processmapR)
 library(processmonitR)
 library(edeaR)
 library(tidyverse)
+library(dplyr)
 
 #loading the data set
 log <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\Student_Enrollment_Event_Log.csv")
@@ -162,11 +162,9 @@ distinct_df <- distinct(log, Case_ID, Enrollment_Status, .keep_all = TRUE)
 #write.csv(distinct_df, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
 
 ######## loading the newly cleaned data set
-
 #log1 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv")
 #log1
 #View(log1)
-
 
 
 
@@ -225,6 +223,14 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 
 
 
+
+### DEPTH ANALYSIS oOF  EVENT LOG ###
+## details of EVENT_LOG ##
+bupaR::cases(event_log)
+bupaR::activities(event_log)
+bupaR::n_traces(event_log)
+bupaR::trace_list(event_log) %>% print(n=85)
+bupaR::mapping(event_log)
 
 ######## SECTION 4 ########
 
@@ -307,6 +313,9 @@ processmapR::resource_map(event_log)
 processmapR::resource_matrix(event_log)
 data2 <- resource_matrix(event_log)
 data2 %>% plot()
+
+#activity frequency
+event_log %>% activity_frequency(level = "activity") %>% plot()
 
 ##### PROCESSS DASHBOARDS #######
 processmonitR::activity_dashboard(event_log)
