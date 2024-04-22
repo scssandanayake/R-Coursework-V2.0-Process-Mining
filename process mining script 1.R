@@ -384,3 +384,6 @@ event_log %>%
 filtered_data %>%
   group_by(`Notification_Status`,`Active_Status`) %>% 
   throughput_time('log', units = 'hours')
+
+glimpse(event_log)
+glimpse(filtered_data)

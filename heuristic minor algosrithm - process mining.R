@@ -1,15 +1,16 @@
-install.packages("renv")
+#install.packages("renv")
 
 library(renv)
 renv::init()
 
-remotes::install_github("bupaverse/pm4py@dev")
-pm4py::install_pm4py()
-install.packages("reticulate")
-library(reticulate)
-py_install("pm4py==2.7.11.7")
-pm4py <- import("pm4py")
-library(pm4py)
+#NNremotes::install_github("bupaverse/pm4py@dev")
+#pm4py::install_pm4py()
+#install.packages("reticulate")
+#ibrary(reticulate)
+#py_install("pm4py==2.7.11.7")
+#pm4py <- import("pm4py")
+
+#library(pm4py)
 library(processmapR)
 library(bupaR)
 library(dplyr)
@@ -17,13 +18,13 @@ library(eventdataR)
 library(edeaR)
 library(tidyverse)
 library(heuristicsmineR)
-library(pm4py)
+#library(pm4py)
 
 
-help(package="pm4py")
-names(pm4py)
+#help(package="pm4py")
+#names(pm4py)
 
-log <- read.csv("C:/Users/kasrs/Downloads/ev.csv")
+log <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\Student_Enrollment_Event_Log.csv")
 
 
 log$Opened_At<-as.POSIXct(log$Opened_At,format="%d/%m/%Y %H:%M")
@@ -51,46 +52,54 @@ event_log <- eventlog(distinct_df,
                       activity_instance_id = "activity_instance_id")
 
 head(event_log)
-alpha_model <- pm4py$discover_heuristics_net(event_log)
+#alpha_model <- pm4py$discover_heuristics_net(event_log)
 
   
-  if (!requireNamespace("heuristicsmineR", quietly = TRUE)) {
+  #if (!requireNamespace("heuristicsmineR", quietly = TRUE)) {
     install.packages("heuristicsmineR")
   }
 
 # Load the heuristicsmineR package
-install.packages("reticulate")
+#install.packages("reticulate")
 library(heuristicsmineR)
 
 # Causal graph / Heuristics net
-cn <- causal_net(event_log)
+cn <- causal_net(event_log,threshold = 0.95)
 pn <- as.petrinet(cn)
 
 petrinetR::render_PN(pn)
 
 help(package = "bupaR")
 
-install.packages("DiagrammeRsvg")
+#install.packages("DiagrammeRsvg")
 library(DiagrammeRsvg)
-
-
-install.packages("svgPanZoom")
-
 library(magrittr)
-causal_net(event_log) %>%
+
+#install.packages("svgPanZoom")
+
+causal_net(event_log,threshold = 0.95) %>%
   render_causal_net(render = TRUE) %>%
   DiagrammeRsvg::export_svg() %>%
   svgPanZoom::svgPanZoom()
-  
+
+causal_net(event_log, threshold = 0.95) %>%
+  performance(median, flow_time = "idle_time") %>%
+  render_causal_net(render = TRUE) %>%
+  DiagrammeRsvg::export_svg() %>%
+  svgPanZoom::svgPanZoom()
+
+filtered_data %>% process_map(performance(median, "mins"),render = T)
+
 
 martix <-parallel_matrix_lifecycle(event_log)
 print(matrix)
 
-event_log %>%
-  filter_trace_frequency(percentage = .80) %>%    # show only the most frequent traces
-  group_by(`Case_ID`) %>% 
-  throughput_time('log', units = 'hours')
+# Dependency graph / matrix
+dependency_matrix(event_log)
 
-# A tibble: 2 x 9
+# Example from Process mining book
+dependency_matrix(event_log, threshold =0.95)
 
-head(event_log)
+m <- precedence_matrix_absolute(event_log)
+as.matrix(m)
+

@@ -4,13 +4,13 @@ library(reshape2)
 library(ggplot2)
 
 # Load your data from the CSV file
-data <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\Student_Enrollment_Event_Log.csv")
+df <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\Student_Enrollment_Event_Log.csv")
 
 # Check the data types
-str(data)
+str(df)
 
 # Remove non-numeric variables
-data_numeric <- data[, sapply(data, is.numeric)]
+data_numeric <- df[, sapply(df, is.numeric)]
 
 # Compute the correlation matrix
 cormat <- round(cor(data_numeric), 2)
@@ -40,3 +40,6 @@ ggplot(data = melted_cormat, aes(x = Var1, y = Var2, fill = value)) +
   coord_fixed(ratio = 1) +
   theme(legend.position="right") +
   labs(title = "Correlation Matrix Heatmap with Coefficients")
+
+
+
