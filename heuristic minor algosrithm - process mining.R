@@ -52,54 +52,51 @@ event_log <- eventlog(distinct_df,
                       activity_instance_id = "activity_instance_id")
 
 head(event_log)
+
 #alpha_model <- pm4py$discover_heuristics_net(event_log)
 
   
-  #if (!requireNamespace("heuristicsmineR", quietly = TRUE)) {
-    install.packages("heuristicsmineR")
-  }
+#if (!requireNamespace("heuristicsmineR", quietly = TRUE)) {
+  install.packages("heuristicsmineR")
+}
 
-# Load the heuristicsmineR package
+# Load the neccesary package
+
 #install.packages("reticulate")
+#install.packages("DiagrammeRsvg")
+#install.packages("svgPanZoom")
+
 library(heuristicsmineR)
+library(DiagrammeRsvg)
+library(magrittr)
 
 # Causal graph / Heuristics net
 cn <- causal_net(event_log,threshold = 0.95)
 pn <- as.petrinet(cn)
 
+#drawing the petrinet
 petrinetR::render_PN(pn)
 
+#get bupar packages
 help(package = "bupaR")
 
-#install.packages("DiagrammeRsvg")
-library(DiagrammeRsvg)
-library(magrittr)
-
-#install.packages("svgPanZoom")
-
+#generate cassual net
 causal_net(event_log,threshold = 0.95) %>%
   render_causal_net(render = TRUE) %>%
   DiagrammeRsvg::export_svg() %>%
   svgPanZoom::svgPanZoom()
 
-causal_net(event_log, threshold = 0.95) %>%
-  performance(median, flow_time = "idle_time") %>%
-  render_causal_net(render = TRUE) %>%
-  DiagrammeRsvg::export_svg() %>%
-  svgPanZoom::svgPanZoom()
-
-filtered_data %>% process_map(performance(median, "mins"),render = T)
-
-
+#get the parallel_matrix_lifecycle
 martix <-parallel_matrix_lifecycle(event_log)
 print(matrix)
-
-# Dependency graph / matrix
-dependency_matrix(event_log)
 
 # Example from Process mining book
 dependency_matrix(event_log, threshold =0.95)
 
+#get the precedence_matrix_absolute
 m <- precedence_matrix_absolute(event_log)
 as.matrix(m)
+
+
+
 
