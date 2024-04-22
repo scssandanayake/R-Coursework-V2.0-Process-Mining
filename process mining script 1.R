@@ -154,10 +154,6 @@ for (i in 1:length(case_ids)) {
 length(case_ids)
 case_ids
 
-# Take the `log` data-frame, remove the log events with same `Case_ID` and `Enrollment_Status`, keep only the first log of those dUplicates. 
-# Don't reassign to the same data-frame, create a new one instead. 
-distinct_df <- distinct(log, Case_ID, Enrollment_Status, .keep_all = TRUE)
-
 #save cleaned dataset
 #write.csv(distinct_df, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
 
@@ -173,29 +169,29 @@ distinct_df <- distinct(log, Case_ID, Enrollment_Status, .keep_all = TRUE)
 ###### DATA PREPROCESSING TO CREATE AN EVENT LOG ######
 
 # Convert time-stamps into POSIXct format
-distinct_df$Opened_At<-as.POSIXct(distinct_df$Opened_At,format="%d/%m/%Y %H:%M")
-distinct_df$Closed_At <- as.POSIXct(distinct_df$Closed_At, format="%d/%m/%Y %H:%M")
-distinct_df$Resolved_At <- as.POSIXct(distinct_df$Resolved_At, format="%d/%m/%Y %H:%M")
-distinct_df$Application_Created_At <- as.POSIXct(distinct_df$Application_Created_At, format="%d/%m/%Y %H:%M")
-distinct_df$Last_Updated_At <- as.POSIXct(distinct_df$Last_Updated_At, format="%d/%m/%Y %H:%M")
+log$Opened_At<-as.POSIXct(log$Opened_At,format="%d/%m/%Y %H:%M")
+log$Closed_At <- as.POSIXct(log$Closed_At, format="%d/%m/%Y %H:%M")
+log$Resolved_At <- as.POSIXct(log$Resolved_At, format="%d/%m/%Y %H:%M")
+log$Application_Created_At <- as.POSIXct(log$Application_Created_At, format="%d/%m/%Y %H:%M")
+log$Last_Updated_At <- as.POSIXct(log$Last_Updated_At, format="%d/%m/%Y %H:%M")
 
 # Creating event log: arrange, group, mutate, then un-group
-distinct_df <- distinct_df%>%
+log <- log%>%
   arrange(Case_ID,Last_Updated_At)%>%
   group_by(Case_ID,Last_Updated_At)%>%
   mutate(activity_instance_id = paste(Case_ID,Enrollment_Status, row_number(), sep ="_"))%>%
   ungroup()
 
 #get an summery of the data set
-distinct_df
+log
 
 # Adding a column for resource ID (filled with NA for compatibility)
-distinct_df$resource_id <- "NA"
+log$resource_id <- "NA"
 
-#View(distinct_df)
+#View(log)
 
 # Create the event log object
-event_log <- eventlog(distinct_df,
+event_log <- eventlog(log,
                       case_id = "Case_ID",
                       activity_id = "Enrollment_Status",
                       timestamp = "Last_Updated_At",
@@ -208,6 +204,33 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
   stop("The event log contains NA or infinite timestamps, which cannot be processed.")
 }
 
+# Remove the cases which does not have consecutive modification counts
+has_consecutive <- function(x) {
+  any(diff(x) == 1)
+}
+
+non_consecutive_cases <- event_log %>%
+  group_by(Case_ID) %>%
+  summarise(consecutive = has_consecutive(Modification_Count)) %>%
+  filter(!consecutive)
+
+print(non_consecutive_cases)
+
+indices_to_remove <- non_consecutive_cases$Case_ID
+
+filtered_event_log <- event_log %>% filter(!(Case_ID %in% indices_to_remove))
+
+non_consecutive_cases <- filtered_event_log %>%
+  group_by(Case_ID) %>%
+  summarise(consecutive = has_consecutive(Modification_Count)) %>%
+  filter(!consecutive)
+
+print(non_consecutive_cases)
+
+# Take the `log` data-frame, remove the log events with same `Case_ID` and `Enrollment_Status`, keep only the first log of those dUplicates. 
+# Don't reassign to the same data-frame, create a new one instead. 
+event_log <- event_log %>%
+  distinct(Case_ID, Enrollment_Status, .keep_all = TRUE)
 
 # Save event_log as a CSV file to the user's home directory
 #write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv", row.names = FALSE)
