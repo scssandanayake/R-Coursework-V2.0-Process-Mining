@@ -204,6 +204,8 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
   stop("The event log contains NA or infinite timestamps, which cannot be processed.")
 }
 
+
+#### NEW CLEANING #####
 # Remove the cases which does not have consecutive modification counts
 has_consecutive <- function(x) {
   any(diff(x) == 1)
@@ -226,6 +228,7 @@ non_consecutive_cases <- filtered_event_log %>%
   filter(!consecutive)
 
 print(non_consecutive_cases)
+#### END ####
 
 # Take the `log` data-frame, remove the log events with same `Case_ID` and `Enrollment_Status`, keep only the first log of those dUplicates. 
 # Don't reassign to the same data-frame, create a new one instead. 
