@@ -319,6 +319,14 @@ event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = 0.95)
 
+##normal data details
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 1.0)
+
+bupaR::n_traces(filtered_data)
+bupaR::trace_list(filtered_data) %>% print(n=85)
+
 #draw the filtered process map (Main Details)
 filtered_data %>% process_map(render = T)
 
