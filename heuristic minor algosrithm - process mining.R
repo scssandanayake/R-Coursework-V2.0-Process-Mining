@@ -54,13 +54,7 @@ event_log <- eventlog(distinct_df,
 head(event_log)
 
 #alpha_model <- pm4py$discover_heuristics_net(event_log)
-
-  
-#if (!requireNamespace("heuristicsmineR", quietly = TRUE)) {
-  install.packages("heuristicsmineR")
-}
-
-# Load the neccesary package
+#Load the neccesary package
 
 #install.packages("reticulate")
 #install.packages("DiagrammeRsvg")
@@ -104,6 +98,14 @@ dependency_matrix(event_log, threshold =0.95)
 m <- precedence_matrix_absolute(event_log)
 as.matrix(m)
 
+#let's try to get the alpha miner algorithm using pm4py in R
+
+#Arguments
+#lets check the function args
+args(pm4py$discover_petri_net_alpha)
+
+heumap <- pm4py$discover_petri_net_alpha(event_log , case_id_key = "Case_ID" , activity_key = "Enrollment_Status" , timestamp_key = "Last_Updated_At")
+pm4py$render
 
 
 
