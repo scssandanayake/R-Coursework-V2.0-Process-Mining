@@ -3,7 +3,8 @@
 library(renv)
 renv::init()
 
-NN#NNremotes::install_github("bupaverse/pm4py@dev")
+#NN
+#NNremotes::install_github("bupaverse/pm4py@dev")
 #pm4py::install_pm4py()
 #install.packages("reticulate")
 #ibrary(reticulate)
@@ -125,7 +126,6 @@ optimal_path <- shortest_paths(graph, from = V(graph)[degree(graph, mode = "in")
 # Print the optimal path
 print(optimal_path)
 
-#######################
 # Get the optimal path based on a certain criterion (e.g., shortest path)
 shortest_paths_result <- shortest_paths(graph, from = V(graph)[degree(graph, mode = "in") == 0], to = V(graph)[degree(graph, mode = "out") == 0], mode = "out")
 
