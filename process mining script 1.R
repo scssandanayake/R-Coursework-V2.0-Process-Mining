@@ -261,7 +261,7 @@ event_log <- event_log %>%
 
 
 
-### DEPTH ANALYSIS oOF  EVENT LOG ###
+### DEPTH ANALYSIS ABOUT THE EVENT LOG ###
 ## details of EVENT_LOG ##
 bupaR::cases(event_log)
 bupaR::activities(event_log)
