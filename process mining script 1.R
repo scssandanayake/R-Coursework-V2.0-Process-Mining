@@ -367,7 +367,7 @@ filtered_data %>%process_map(performance(median, "hours"),render = T)
 # Generate process matrix for original data
 process_matrix <- process_matrix(event_log)
 plot(process_matrix, render = TRUE)
-
+#perfomnace matrix
 event_log %>%
   process_matrix(performance(FUN = mean, units = "days"))  %>%
   plot()
@@ -375,7 +375,7 @@ event_log %>%
 # Generate process matrix for filterd data
 process_matrix <- process_matrix(filtered_data)
 plot(process_matrix, render = TRUE)
-
+#perfomnace matrix
 filtered_data %>%
   process_matrix(performance(FUN = mean, units = "days"))  %>%
   plot()
