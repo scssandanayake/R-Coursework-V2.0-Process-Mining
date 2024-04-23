@@ -44,7 +44,7 @@ colSums(is.na(log))
 
 
 ###### SECTION 2 #######
-###### DATA CLEANING PART ########
+###### DATA INSPECTION BEFORE DATA CLEANING ########
 
 ##this part removed
 
@@ -154,13 +154,6 @@ for (i in 1:length(case_ids)) {
 length(case_ids)
 case_ids
 
-#save cleaned dataset
-#write.csv(distinct_df, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
-
-######## loading the newly cleaned data set
-#log1 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv")
-#log1
-#View(log1)
 
 
 
@@ -205,6 +198,25 @@ if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
 }
 
 
+# Save event_log as a CSV file to the user's home directory
+#write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv", row.names = FALSE)
+
+#loading the new cleaned data set
+#log2 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv")
+
+#get an summery of the data set
+#log2
+
+#view full data set
+#View(log2)
+
+
+
+
+
+###### SECTION 4 #######
+###### DATA CLEANING PART ########
+
 #### NEW CLEANING #####
 # Remove the cases which does not have consecutive modification counts
 has_consecutive <- function(x) {
@@ -228,24 +240,24 @@ non_consecutive_cases <- filtered_event_log %>%
   filter(!consecutive)
 
 print(non_consecutive_cases)
-#### END ####
+
+event_log <- filtered_event_log
 
 # Take the `log` data-frame, remove the log events with same `Case_ID` and `Enrollment_Status`, keep only the first log of those dUplicates. 
 # Don't reassign to the same data-frame, create a new one instead. 
 event_log <- event_log %>%
   distinct(Case_ID, Enrollment_Status, .keep_all = TRUE)
 
-# Save event_log as a CSV file to the user's home directory
-#write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv", row.names = FALSE)
 
-#loading the new cleaned data set
-#log2 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\event_log_cleaned.csv")
+#save cleaned dataset
+#write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
 
-#get an summery of the data set
-#log2
+######## loading the newly cleaned data set
+#log1 <- read.csv("D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv")
+#log1
+#View(log1)
 
-#view full data set
-#View(log2)
+
 
 
 
