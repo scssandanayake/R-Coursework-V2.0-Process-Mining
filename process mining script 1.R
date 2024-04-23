@@ -437,6 +437,18 @@ processmonitR::performance_dashboard(event_log)
 event_log %>%
   ps_detailed(n_segments = 10)
 
+#dotted graph
+event_log %>%
+  dotted_chart(x = "absolute")
+
+filtered_data %>%
+  dotted_chart(x = "absolute")
+
+event_log %>%
+  dotted_chart(x = "relative")
+
+filtered_data %>%
+  dotted_chart(x = "relative")
 
 ######### SECTION 6 #########
 ######## conditional process analysis #########
