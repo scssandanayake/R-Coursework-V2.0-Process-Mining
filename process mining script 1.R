@@ -6,13 +6,16 @@
 #install.packages("edeaR")
 #install.packages("processmapR")
 #install.packages("processmonitR")
+install.packages("psmineR")
 
 #load the required library for process mining
 library(bupaR)
 library(eventdataR)
 library(processmapR)
 library(processmonitR)
+library(processanimateR)
 library(edeaR)
+library(psmineR)
 library(tidyverse)
 library(dplyr)
 
@@ -294,16 +297,33 @@ edeaR::trace_length(event_log)
 #### DRAWING PROCESS MAPS 1#####
 ###### process maps for the full event log ############
 
+
+##normal data details
+event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 1.0)
+
 #draw the full process map (Complete Details)
 process_map(event_log)
+#animated map
+#animate_process(event_log)
+
 
 #draw the full process map (Complete Details)
-#Median Value
-process_map(event_log, performance(median))
+#Median Values
+process_map(event_log, performance(median, "minutes"))
+
+process_map(event_log, performance(median,"days"))
+
+process_map(event_log, performance(median,"hours"))
 
 #draw the full process map (Complete Details)
-#Mean Value
+#Mean Values
 process_map(event_log, performance(mean))
+
+process_map(event_log, performance(mean, "days"))
+
+process_map(event_log, performance(mean, "hours"))
 
 
 
@@ -319,8 +339,13 @@ event_log %>%
   filter_activity_frequency(percentage = 1.0) %>% 
   filter_trace_frequency(percentage = 0.95)
 
+bupaR::n_traces(filtered_data)
+bupaR::trace_list(filtered_data) %>% print(n=85)
+
 #draw the filtered process map (Main Details)
 filtered_data %>% process_map(render = T)
+#animated map
+#animate_process(filtered_data)
 
 #process map details
 filtered_data %>% process_map(render = F)
@@ -328,16 +353,32 @@ filtered_data %>% process_map(render = F)
 #Generate process map with performance measures ( Mean Value )
 filtered_data %>%process_map(performance(mean, "mins"),render = T)
 
+filtered_data %>%process_map(performance(mean, "days"),render = T)
+
+filtered_data %>%process_map(performance(mean, "hours"),render = T)
+
 #Generate process map with performance measures ( Median Value )
 filtered_data %>%process_map(performance(median, "mins"),render = T)
+
+filtered_data %>%process_map(performance(median, "days"),render = T)
+
+filtered_data %>%process_map(performance(median, "hours"),render = T)
 
 # Generate process matrix for original data
 process_matrix <- process_matrix(event_log)
 plot(process_matrix, render = TRUE)
+#perfomnace matrix
+event_log %>%
+  process_matrix(performance(FUN = mean, units = "days"))  %>%
+  plot()
 
 # Generate process matrix for filterd data
 process_matrix <- process_matrix(filtered_data)
 plot(process_matrix, render = TRUE)
+#perfomnace matrix
+filtered_data %>%
+  process_matrix(performance(FUN = mean, units = "days"))  %>%
+  plot()
 
 #Generate variant overview
 trace_explorer <- event_log %>%
@@ -348,8 +389,16 @@ trace_explorer <- filtered_data %>%
   trace_explorer(coverage = 0.5)
   plot(trace_explorer, render = TRUE)
 
+event_log %>%
+  trace_explorer(n_traces = 10, label_size = 4)
 
-  
+event_log %>%
+  trace_explorer(n_traces = 10,
+                 coverage_labels = c("cumulative", "relative"))
+
+event_log %>%
+  trace_explorer(n_traces = 10, label_size = 4,
+                 scale_fill = ggplot2::scale_fill_discrete)
   
 ######## SECTION 5 ########
 ##### OTHER PROCESS VISUALIZATIONS ######
@@ -384,7 +433,22 @@ processmonitR::resource_dashboard(event_log)
 processmonitR::rework_dashboard(event_log)
 processmonitR::performance_dashboard(event_log)
   
-  
+#Performance Spectrum
+event_log %>%
+  ps_detailed(n_segments = 10)
+
+#dotted graph
+event_log %>%
+  dotted_chart(x = "absolute")
+
+filtered_data %>%
+  dotted_chart(x = "absolute")
+
+event_log %>%
+  dotted_chart(x = "relative")
+
+filtered_data %>%
+  dotted_chart(x = "relative")
 
 ######### SECTION 6 #########
 ######## conditional process analysis #########
