@@ -6,7 +6,7 @@
 #install.packages("edeaR")
 #install.packages("processmapR")
 #install.packages("processmonitR")
-install.packages("psmineR")
+#install.packages("psmineR")
 
 #load the required library for process mining
 library(bupaR)
@@ -535,5 +535,8 @@ filtered_data1 %>% process_map(render = F)
 filtered_data1 %>%process_map(performance(mean, "mins"),render = T)
 
 filtered_data1 %>%process_map(performance(mean, "days"),render = T)
+
+#animated map
+#animate_process(filtered_data1)
 
 filtered_data1 %>%process_map(performance(mean, "hours"),render = T)
