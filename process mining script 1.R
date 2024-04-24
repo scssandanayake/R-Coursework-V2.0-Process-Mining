@@ -196,8 +196,10 @@ event_log <- eventlog(log,
                       activity_instance_id = "activity_instance_id")
 
 # Before drawing the process map, ensure there are no missing or infinite values
-if(any(is.na(event_log$timestamp)) || any(is.infinite(event_log$timestamp))) {
+if(any(is.na(event_log$Last_Updated_At)) || any(is.infinite(event_log$Last_Updated_At))) {
   stop("The event log contains NA or infinite timestamps, which cannot be processed.")
+} else {
+   print("The event log is good to go.")
 }
 
 
@@ -251,6 +253,10 @@ event_log <- filtered_event_log
 event_log <- event_log %>%
   distinct(Case_ID, Enrollment_Status, .keep_all = TRUE)
 
+
+# Remove cases with very rare activity statuses
+removable_cases <- event_log[event_log$Enrollment_Status == -100, ]$Case_ID
+event_log <- event_log[!(event_log$Case_ID %in% removable_cases), ]
 
 #save cleaned dataset
 #write.csv(event_log, "D:\\My Projects 1\\R-Coursework-V2.0\\student_log_cleaned (distinct).csv", row.names = FALSE)
