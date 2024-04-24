@@ -502,3 +502,32 @@ event_log %>%
   group_by(`Last_Updated_At`) %>% 
   throughput_time('log', units = 'hours') %>% 
   plot(render = T)
+
+
+
+
+###### SECTION 7 #######
+######## CALCULATE THE OPTIMAL PATH ###########
+##filtering the data for the next maps
+filtered_data1 <- event_log %>%
+  filter_activity_frequency(percentage = 1.0) %>% 
+  filter_trace_frequency(percentage = 0.978)
+
+#get the traces and trace list
+bupaR::n_traces(filtered_data1)
+bupaR::trace_list(filtered_data1) %>% print(n=85)
+
+#draw the filtered process map (Main Details)
+filtered_data1 %>% process_map(render = T)
+#animated map
+#animate_process(filtered_data1)
+
+#process map details
+filtered_data1 %>% process_map(render = F)
+
+#Generate process map with performance measures ( Mean Value )
+filtered_data1 %>%process_map(performance(mean, "mins"),render = T)
+
+filtered_data1 %>%process_map(performance(mean, "days"),render = T)
+
+filtered_data1 %>%process_map(performance(mean, "hours"),render = T)
