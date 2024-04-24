@@ -106,6 +106,10 @@ args(pm4py$discover_petri_net_alpha)
 
 heumap <- pm4py$discover_petri_net_alpha(event_log , case_id_key = "Case_ID" , activity_key = "Enrollment_Status" , timestamp_key = "Last_Updated_At")
 pm4py$render
+heumap[[1]]
+#generate the alpha miner outcome
+pm4py$view_petri_net(heumap[[1]], heumap[[2]], heumap[[3]])
+
 
 
 
